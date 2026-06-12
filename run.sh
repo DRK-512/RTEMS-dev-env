@@ -1,7 +1,7 @@
 #!/bin/bash
 ERR="\e[31m"
 EC="\e[0m"
-IMAGE_NAME="rtems7-devel"
+IMAGE_NAME="rtems6-devel"
 # Build image if it does not exist
 if ! sudo docker images | grep $IMAGE_NAME; then
 

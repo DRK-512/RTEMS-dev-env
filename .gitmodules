@@ -1,0 +1,3 @@
+[submodule "share/rtems-examples"]
+	path = share/rtems-examples
+	url = https://github.com/RTEMS/rtems-examples.git

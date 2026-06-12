@@ -1,11 +1,11 @@
 # Use a lightweight base image with development tools
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="/opt/rtems/7/bin:$PATH"
-ENV RTEMS_VERSION="7"
-ENV RTEMS_PREFIX="/opt/rtems/7"
+ENV PATH="/opt/rtems/6/bin:$PATH"
+ENV RTEMS_VERSION="6"
+ENV RTEMS_PREFIX="/opt/rtems/6"
 ENV RTEMS_KERNEL_PATH="/opt/rtems-kernel"
 
 # Update package list and install dependencies
@@ -28,13 +28,31 @@ RUN apt-get update -y && \
     gdb \
     cmake \
     vim \
-    && apt-get clean
-
-# Install RTEMS Source Builder (RSB) dependencies
-RUN apt-get install -y \
-    u-boot-tools \
-    python \
+    build-essential \
+    g++ \
+    gdb \
+    unzip \
+    pax \
+    bison \
+    flex \
+    texinfo \
     python3-dev \
+    python-is-python3 \
+    libncurses-dev \
+    zlib1g-dev \
+    ninja-build \
+    pkg-config \
+    qemu-system-arm \
+    gdb-multiarch \
+    cppcheck \
+    valgrind \
+    lcov \
+    gcovr \
+    clang-format \
+    clang-tidy \
+    doxygen \
+    graphviz \
+    u-boot-tools \
     python3-venv \
     libssl-dev \
     libxml2-dev \
@@ -47,14 +65,14 @@ RUN cd /opt && \
     git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
     git clone https://gitlab.rtems.org/rtems/rtos/rtems.git rtems-kernel && \
     cd rtems-source-builder && \
-    git checkout 71faa243ebf4ccf737bf83699f694f39f3b92fef && \
+    git checkout base/6 && \
     cd ../rtems-kernel && \
-    git checkout 120bc92b0417cab11424e348ff9dc2a3aa870836
+    git checkout base/6
 
 # The next 2 RUN commands setup the rtems env, and are split for better debugging
 WORKDIR /opt/rtems-source-builder/rtems
 RUN ../source-builder/sb-get-sources
-RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/7/rtems-arm --with-rtems-tests=yes --with-rtems-smp
+RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
 # Set default dir to RTEMS_KERNEL_PATH to run the rest of this container in
 WORKDIR $RTEMS_KERNEL_PATH
