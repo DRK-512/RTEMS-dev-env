@@ -64,7 +64,10 @@ RUN apt-get update -y && \
 RUN cd /opt && \
     git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
     git clone https://gitlab.rtems.org/rtems/rtos/rtems.git rtems-kernel && \
+    git clone https://gitlab.rtems.org/rtems/tools/rtems-tools.git rtems-tools && \
     cd rtems-source-builder && \
+    git checkout base/6 && \
+    cd ../rtems-tools && \
     git checkout base/6 && \
     cd ../rtems-kernel && \
     git checkout base/6
@@ -81,6 +84,6 @@ WORKDIR $RTEMS_KERNEL_PATH
 COPY ./include/config.ini $RTEMS_KERNEL_PATH
 
 # Configure the waf project
-RUN ./waf configure --prefix=$RTEMS_PREFIX 
+RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
