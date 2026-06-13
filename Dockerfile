@@ -1,4 +1,3 @@
-# Use a lightweight base image with development tools
 FROM ubuntu:22.04
 
 # Set environment variables for non-interactive installation
@@ -21,25 +20,15 @@ RUN apt-get update -y && \
     python3-setuptools \
     wget \
     texinfo \
-    libncurses5-dev \
-    libncursesw5-dev \
     zlib1g-dev \
     unzip \
     gdb \
     cmake \
     vim \
-    build-essential \
-    g++ \
-    gdb \
-    unzip \
     pax \
-    bison \
-    flex \
-    texinfo \
     python3-dev \
     python-is-python3 \
     libncurses-dev \
-    zlib1g-dev \
     ninja-build \
     pkg-config \
     qemu-system-arm \
@@ -57,6 +46,10 @@ RUN apt-get update -y && \
     libssl-dev \
     libxml2-dev \
     libxslt-dev \
+    xz-utils \
+    bzip2 \
+    ca-certificates \
+    libgmp-dev libmpfr-dev libmpc-dev libisl-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -71,7 +64,7 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
 USER builder
 WORKDIR /home/builder
 # Clone the RTEMS Source Builder (RSB) & RTEMS
-# The commit ID's are based off working versions of main, and non of the tag releases seem to work properly for me
+# The commit ID's are based off working tag releases
 RUN git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
     git clone https://gitlab.rtems.org/rtems/rtos/rtems.git rtems-kernel && \
     git clone https://gitlab.rtems.org/rtems/tools/rtems-tools.git rtems-tools && \
@@ -82,18 +75,24 @@ RUN git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && 
     cd ../rtems-kernel && \
     git checkout base/6
 
-# The next 2 RUN commands setup the rtems env, and are split for better debugging
+# The next 2 commands setup the rtems env, and are split for better debugging
 WORKDIR /home/builder/rtems-source-builder/rtems
 RUN ../source-builder/sb-get-sources
 RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
-# Set default dir to RTEMS_KERNEL_PATH to run the rest of this container in
-WORKDIR $RTEMS_KERNEL_PATH
-
 # Create the config file
 COPY ./include/config.ini $RTEMS_KERNEL_PATH
 
+# Build RTEMS test
+WORKDIR /home/builder/rtems-tools
+RUN ./waf configure --prefix=$RTEMS_PREFIX
+RUN ./waf build
+RUN ./waf install
+
+# Build the kernel
+WORKDIR $RTEMS_KERNEL_PATH
 # Configure the waf project
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
+
