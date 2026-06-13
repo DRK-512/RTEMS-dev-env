@@ -50,6 +50,8 @@ RUN apt-get update -y && \
     bzip2 \
     ca-certificates \
     libgmp-dev libmpfr-dev libmpc-dev libisl-dev \
+    device-tree-compiler \
+    minicom \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
