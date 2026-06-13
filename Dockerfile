@@ -3,10 +3,10 @@ FROM ubuntu:22.04
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="/opt/rtems/6/bin:$PATH"
+ENV PATH="/home/builder/rtems/6/bin:$PATH"
 ENV RTEMS_VERSION="6"
-ENV RTEMS_PREFIX="/opt/rtems/6"
-ENV RTEMS_KERNEL_PATH="/opt/rtems-kernel"
+ENV RTEMS_PREFIX="/home/builder/rtems/6"
+ENV RTEMS_KERNEL_PATH="/home/builder/rtems-kernel"
 
 # Update package list and install dependencies
 RUN apt-get update -y && \
@@ -57,12 +57,22 @@ RUN apt-get update -y && \
     libssl-dev \
     libxml2-dev \
     libxslt-dev \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Create User
+RUN useradd -m -u 1000 -s /bin/bash builder && \
+    passwd -d builder && \
+    usermod -aG sudo builder && \
+    echo 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder && \
+    chmod 0440 /etc/sudoers.d/builder && \
+    touch /home/builder/.sudo_as_admin_successful
+
+USER builder
+WORKDIR /home/builder
 # Clone the RTEMS Source Builder (RSB) & RTEMS
 # The commit ID's are based off working versions of main, and non of the tag releases seem to work properly for me
-RUN cd /opt && \
-    git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
+RUN git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
     git clone https://gitlab.rtems.org/rtems/rtos/rtems.git rtems-kernel && \
     git clone https://gitlab.rtems.org/rtems/tools/rtems-tools.git rtems-tools && \
     cd rtems-source-builder && \
@@ -73,7 +83,7 @@ RUN cd /opt && \
     git checkout base/6
 
 # The next 2 RUN commands setup the rtems env, and are split for better debugging
-WORKDIR /opt/rtems-source-builder/rtems
+WORKDIR /home/builder/rtems-source-builder/rtems
 RUN ../source-builder/sb-get-sources
 RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
