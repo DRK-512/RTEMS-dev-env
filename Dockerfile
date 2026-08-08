@@ -1,11 +1,11 @@
-FROM ubuntu:22.04
+FROM debian:12
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="/home/builder/rtems/6/bin:$PATH"
+ENV PATH="/opt/rtems/6/bin:$PATH"
 ENV RTEMS_VERSION="6"
-ENV RTEMS_PREFIX="/home/builder/rtems/6"
-ENV RTEMS_KERNEL_PATH="/home/builder/rtems-kernel"
+ENV RTEMS_PREFIX="/opt/rtems/6"
+ENV RTEMS_KERNEL_PATH="/opt/rtems-kernel"
 
 # Update package list and install dependencies
 RUN apt-get update -y && \
@@ -63,22 +63,14 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
     chmod 0440 /etc/sudoers.d/builder && \
     touch /home/builder/.sudo_as_admin_successful
 
+RUN mkdir /opt/rtems && chown -R builder:builder /opt/rtems/
+
 USER builder
 WORKDIR /home/builder
-# Clone the RTEMS Source Builder (RSB) & RTEMS
-# The commit ID's are based off working tag releases
-RUN git clone https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git  && \
-    git clone https://gitlab.rtems.org/rtems/rtos/rtems.git rtems-kernel && \
-    git clone https://gitlab.rtems.org/rtems/tools/rtems-tools.git rtems-tools && \
-    cd rtems-source-builder && \
-    git checkout base/6 && \
-    cd ../rtems-tools && \
-    git checkout base/6 && \
-    cd ../rtems-kernel && \
-    git checkout base/6
+COPY ./rtems/* /opt/rtems/
 
 # The next 2 commands setup the rtems env, and are split for better debugging
-WORKDIR /home/builder/rtems-source-builder/rtems
+WORKDIR /opt/rtems/rtems-source-builder/rtems
 RUN ../source-builder/sb-get-sources
 RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
@@ -97,4 +89,3 @@ WORKDIR $RTEMS_KERNEL_PATH
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
-

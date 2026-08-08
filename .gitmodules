@@ -1,3 +1,12 @@
 [submodule "share/rtems-examples"]
 	path = share/rtems-examples
 	url = https://github.com/RTEMS/rtems-examples.git
+[submodule "rtems/rtems-source-builder"]
+	path = rtems/rtems-source-builder
+	url = https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git
+[submodule "rtems/rtems-kernel"]
+	path = rtems/rtems-kernel
+	url = https://gitlab.rtems.org/rtems/rtos/rtems.git
+[submodule "rtems/rtems-tools"]
+	path = rtems/rtems-tools
+	url = https://gitlab.rtems.org/rtems/tools/rtems-tools.git
