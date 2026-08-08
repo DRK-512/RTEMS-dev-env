@@ -63,16 +63,21 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
     chmod 0440 /etc/sudoers.d/builder && \
     touch /home/builder/.sudo_as_admin_successful
 
-RUN mkdir /opt/rtems && chown -R builder:builder /opt/rtems/
+RUN mkdir /opt/rtems
+
+COPY ./rtems/rtems-kernel /opt/rtems/rtems-kernel
+COPY ./rtems/rtems-source-builder /opt/rtems/rtems-source-builder
+COPY ./rtems/rtems-tools /opt/rtems/rtems-tools
+
+RUN chown -R builder:builder /opt/rtems/
 
 USER builder
 WORKDIR /home/builder
-COPY ./rtems/* /opt/rtems/
 
 # The next 2 commands setup the rtems env, and are split for better debugging
 WORKDIR /opt/rtems/rtems-source-builder/rtems
-RUN ../source-builder/sb-get-sources
-RUN ../source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
+RUN /opt/rtems/rtems-source-builder/source-builder/sb-get-sources
+RUN /opt/rtems/rtems-source-builder/source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
 # Create the config file
 COPY ./include/config.ini $RTEMS_KERNEL_PATH
