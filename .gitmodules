@@ -1,5 +1,5 @@
-[submodule "share/rtems-examples"]
-	path = share/rtems-examples
+[submodule "rtems/rtems-examples"]
+	path = rtems/rtems-examples
 	url = https://github.com/RTEMS/rtems-examples.git
 [submodule "rtems/rtems-source-builder"]
 	path = rtems/rtems-source-builder
@@ -10,6 +10,6 @@
 [submodule "rtems/rtems-tools"]
 	path = rtems/rtems-tools
 	url = https://gitlab.rtems.org/rtems/tools/rtems-tools.git
-[submodule "share/hello/rtems_waf"]
-	path = share/hello/rtems_waf
+[submodule "rtems/rtems_waf"]
+	path = rtems/rtems_waf
 	url = https://gitlab.rtems.org/rtems/tools/rtems_waf.git

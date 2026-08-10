@@ -1,6 +1,6 @@
-FROM debian:12
+FROM debian:12.15@sha256:88a7d30d49e1d13f0aac17b0e5fb9e291717e3a7c4a512fe56636db576383b8a
 
-# Set environment variables for non-interactive installation
+# Set environment variables for RTEMS & non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/rtems/6/bin:$PATH"
 ENV RTEMS_VERSION="6"
@@ -55,7 +55,7 @@ RUN apt-get update -y && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create User
+# Create Builder User
 RUN useradd -m -u 1000 -s /bin/bash builder && \
     passwd -d builder && \
     usermod -aG sudo builder && \
@@ -63,14 +63,18 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
     chmod 0440 /etc/sudoers.d/builder && \
     touch /home/builder/.sudo_as_admin_successful
 
+# Copy over the RTEMs submodules
 RUN mkdir /opt/rtems
-
-COPY ./rtems/rtems-kernel /opt/rtems/rtems-kernel
+COPY ./rtems/rtems-tools          /opt/rtems/rtems-tools
+COPY ./rtems/rtems-kernel         $RTEMS_KERNEL_PATH
 COPY ./rtems/rtems-source-builder /opt/rtems/rtems-source-builder
-COPY ./rtems/rtems-tools /opt/rtems/rtems-tools
+
+# Bring the config file (Not an RTEMs submodule so I keep it in include)
+COPY ./include/config.ini $RTEMS_KERNEL_PATH
 
 RUN chown -R builder:builder /opt/rtems/
 
+# As the user I will build RTEMs so I have permissions for it
 USER builder
 WORKDIR /home/builder
 
@@ -79,10 +83,7 @@ WORKDIR /opt/rtems/rtems-source-builder/rtems
 RUN /opt/rtems/rtems-source-builder/source-builder/sb-get-sources
 RUN /opt/rtems/rtems-source-builder/source-builder/sb-set-builder --prefix=$RTEMS_PREFIX ./config/6/rtems-arm --with-rtems-tests=yes --with-rtems-smp
 
-# Create the config file
-COPY ./include/config.ini $RTEMS_KERNEL_PATH
-
-# Build RTEMS test
+# Build RTEMS tools for testing
 WORKDIR /opt/rtems/rtems-tools
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
@@ -94,3 +95,6 @@ WORKDIR $RTEMS_KERNEL_PATH
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
+
+# Since the installation is done, I will set workdir to where apps will exist via volume mount
+WORKDIR /home/builder/

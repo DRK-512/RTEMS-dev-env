@@ -26,6 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <rtems.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +42,7 @@ static rtems_task Init(
 {
 //rtems_print_printer_fprintf_putc(&rtems_test_printer);
   //TEST_BEGIN();
-  printf("\n");
+    printf("\n");
     printf("=================================\n");
     printf(" Hello from my BeagleBone Black!\n");
     printf("=================================\n");
@@ -49,14 +53,3 @@ static rtems_task Init(
   //rtems_test_exit( 0 );
 }
 
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-
-#define CONFIGURE_UNLIMITED_OBJECTS
-#define CONFIGURE_UNIFIED_WORK_AREAS
-
-#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-
-#define CONFIGURE_INIT
-
-#include <rtems/confdefs.h>
