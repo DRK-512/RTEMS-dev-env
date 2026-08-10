@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/rtems/6/bin:$PATH"
 ENV RTEMS_VERSION="6"
 ENV RTEMS_PREFIX="/opt/rtems/6"
-ENV RTEMS_KERNEL_PATH="/opt/rtems-kernel"
+ENV RTEMS_KERNEL_PATH="/opt/rtems/rtems-kernel"
 
 # Update package list and install dependencies
 RUN apt-get update -y && \
@@ -83,7 +83,7 @@ RUN /opt/rtems/rtems-source-builder/source-builder/sb-set-builder --prefix=$RTEM
 COPY ./include/config.ini $RTEMS_KERNEL_PATH
 
 # Build RTEMS test
-WORKDIR /home/builder/rtems-tools
+WORKDIR /opt/rtems/rtems-tools
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install

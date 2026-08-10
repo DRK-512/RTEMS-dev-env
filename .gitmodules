@@ -10,3 +10,6 @@
 [submodule "rtems/rtems-tools"]
 	path = rtems/rtems-tools
 	url = https://gitlab.rtems.org/rtems/tools/rtems-tools.git
+[submodule "share/hello/rtems_waf"]
+	path = share/hello/rtems_waf
+	url = https://gitlab.rtems.org/rtems/tools/rtems_waf.git
