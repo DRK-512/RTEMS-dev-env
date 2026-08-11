@@ -63,7 +63,7 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
     chmod 0440 /etc/sudoers.d/builder && \
     touch /home/builder/.sudo_as_admin_successful
 
-# Copy over the RTEMs submodules
+# Copy over the RTEMs submodules (NOTE: I copy > vMount because I do not want to have changes to these repositories)
 RUN mkdir /opt/rtems
 COPY ./rtems/rtems-tools           /opt/rtems/rtems-tools
 COPY ./rtems/rtems-kernel          $RTEMS_KERNEL_PATH
@@ -98,7 +98,7 @@ RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
 
-# Bring in the BBB dts file and create the dtb
+# Now that RTEMS is setup, we can bring in the BBB dts file and create the dtb
 COPY ./include/BBB /opt/BBB
 RUN cd /opt/BBB/ && dtc -I dts -O dtb -o ./am335x-boneblack.dtb ./cape-universal-00A0.dts
 

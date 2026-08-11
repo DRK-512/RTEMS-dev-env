@@ -7,7 +7,7 @@ IMAGE_NAME="rtems6-devel"
 # Check if we have enough space to build the container
 MIN_DISK_GB=20
 
-[[ ! -d ./apps ]] && echo -e "${ERR}ERROR: Missing ./apps director${EC}" && exit 1
+[[ ! -d ./apps ]] && echo -e "${ERR}ERROR: Missing ./apps directory${EC}" && exit 1
 
 # Build image if it does not exist
 if ! docker images | grep $IMAGE_NAME; then
@@ -18,7 +18,7 @@ if ! docker images | grep $IMAGE_NAME; then
         AVAILABLE_SPACE_GB=$(printf "%.0f" "$AVAILABLE_SPACE_GB")
 
         # Check if the available space is greater than the threshold
-        if [ "$AVAILABLE_SPACE_GB" -lt "$MIN_DISK_GB" ]; then
+        if [[ "$AVAILABLE_SPACE_GB" -lt "$MIN_DISK_GB" ]]; then
                 echo -e "${ERR}ERROR: Not enough space to build container${EC}"
                 echo "Required: $THRESHOLD GB"
                 echo "Available: $AVAILABLE_SPACE GB"
@@ -47,3 +47,4 @@ else
         docker start $CONTAINER_ID
         docker attach $CONTAINER_ID
 fi
+
