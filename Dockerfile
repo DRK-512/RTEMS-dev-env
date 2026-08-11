@@ -65,9 +65,11 @@ RUN useradd -m -u 1000 -s /bin/bash builder && \
 
 # Copy over the RTEMs submodules
 RUN mkdir /opt/rtems
-COPY ./rtems/rtems-tools          /opt/rtems/rtems-tools
-COPY ./rtems/rtems-kernel         $RTEMS_KERNEL_PATH
-COPY ./rtems/rtems-source-builder /opt/rtems/rtems-source-builder
+COPY ./rtems/rtems-tools           /opt/rtems/rtems-tools
+COPY ./rtems/rtems-kernel          $RTEMS_KERNEL_PATH
+COPY ./rtems/rtems-source-builder  /opt/rtems/rtems-source-builder
+COPY ./rtems/rtems-waf             /opt/rtems/rtems-waf
+COPY ./rtems/rtems-examples        /opt/rtems/rtems-examples
 
 # Bring the config file (Not an RTEMs submodule so I keep it in include)
 COPY ./include/config.ini $RTEMS_KERNEL_PATH
@@ -95,6 +97,10 @@ WORKDIR $RTEMS_KERNEL_PATH
 RUN ./waf configure --prefix=$RTEMS_PREFIX
 RUN ./waf build
 RUN ./waf install
+
+# Bring in the BBB dts file and create the dtb
+COPY ./include/BBB /opt/BBB
+RUN cd /opt/BBB/ && dtc -I dts -O dtb -o ./am335x-boneblack.dtb ./cape-universal-00A0.dts
 
 # Since the installation is done, I will set workdir to where apps will exist via volume mount
 WORKDIR /home/builder/

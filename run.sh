@@ -10,7 +10,7 @@ MIN_DISK_GB=20
 [[ ! -d ./apps ]] && echo -e "${ERR}ERROR: Missing ./apps director${EC}" && exit 1
 
 # Build image if it does not exist
-if ! docker images -q $IMAGE_NAME; then
+if ! docker images | grep $IMAGE_NAME; then
         echo "Image '$IMAGE_NAME' not found locally. Checking disk space before build..."
 
         # Get available disk space in GB (correct calculation)
@@ -33,14 +33,14 @@ if ! docker images -q $IMAGE_NAME; then
         --privileged \
         --security-opt \
         seccomp=unconfined \
-        --volume ./apps:/home/builder \
+        --volume ./apps:/home/builder/apps \
         -it ${IMAGE_NAME} /bin/bash
 elif [[ -z $(docker ps -a --filter "ancestor=${IMAGE_NAME}" -q) ]]; then
         docker run \
         --privileged \
         --security-opt \
         seccomp=unconfined \
-        --volume ./apps:/home/builder \
+        --volume ./apps:/home/builder/apps \
         -it ${IMAGE_NAME} /bin/bash
 else
         CONTAINER_ID=$(docker ps -a --filter "ancestor=${IMAGE_NAME}" -q)

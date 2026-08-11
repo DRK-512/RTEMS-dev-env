@@ -1,0 +1,10 @@
+bootfile=rtems-app.img
+fdtfile=am335x-boneblack.dtb
+
+loadaddr=0x80800000
+fdtaddr=0x88000000
+
+loadimage=load mmc 0:1 ${loadaddr} ${bootfile}
+loadfdt=load mmc 0:1 ${fdtaddr} ${fdtfile}
+
+uenvcmd=run loadimage; run loadfdt; bootm ${loadaddr} - ${fdtaddr}
